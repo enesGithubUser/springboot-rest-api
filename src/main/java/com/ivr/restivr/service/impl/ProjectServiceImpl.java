@@ -11,8 +11,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by temelt on 4.02.2019.
@@ -73,15 +75,27 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     public Boolean delete(Long id) {
+
+        try {
+            Project projectDb = projectRepository.getOne(id);
+            System.out.println(projectDb);
+        }
+        catch (EntityNotFoundException e){
+            throw new EntityNotFoundException("Project Does Not Exist Id " + id); }
+
         projectRepository.deleteById(id);
         return true;
     }
 
     @Override
     public ProjectDto update(Long id, ProjectDto project) {
-        Project projectDb = projectRepository.getOne(id);
-        if (projectDb == null)
-            throw new IllegalArgumentException("Project Does Not Exist ID:" + id);
+        Project projectDb;
+        try {
+             projectDb = projectRepository.getOne(id);
+             System.out.println(projectDb);
+        }
+        catch (EntityNotFoundException e){
+            throw new EntityNotFoundException("Project Does Not Exist Id " + id);  }
 
         Project projectCheck = projectRepository.getByProjectCodeAndIdNot(project.getProjectCode(), id);
         if (projectCheck != null)
